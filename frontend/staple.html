@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staple Crops Disease Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .drag-over { border-color: #22c55e !important; background-color: rgba(34, 197, 94, 0.1) !important; }
+        .loading { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 fade-in">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="w-8 h-8 bg-yellow-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-seedling text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-gray-800 dark:text-white">Staple Crops Model</h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Essential Crops Disease Detection</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Navigation -->
+                    <nav class="hidden md:flex space-x-4">
+                        <a href="index.html" class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">Home</a>
+                        <a href="multicrop.html" class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">Multi-Crop</a>
+                        <a href="staple.html" class="text-yellow-600 font-semibold">Staple Crops</a>
+                        <a href="banana.html" class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">Banana</a>
+                    </nav>
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-lg">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Title Section -->
+        <div class="text-center mb-12 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold text-yellow-900 dark:text-white mb-4">
+                Staple Crops Disease Detection
+            </h1>
+            <p class="text-xl text-yellow-700 dark:text-gray-200 max-w-2xl mx-auto">
+                AI-powered disease detection for essential food crops
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <!-- Upload Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h2 class="text-2xl font-bold text-yellow-800 dark:text-white mb-6">Upload Crop Image</h2>
+
+                <form id="uploadForm" class="space-y-6">
+                    <!-- Image Upload Area -->
+                    <div id="dropZone" class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center transition-colors hover:border-yellow-400">
+                        <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        
+                        <div id="uploadPrompt" class="space-y-4">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                            <div>
+                                <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
+                                    Drop your crop image here or click to browse
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    PNG, JPG, JPEG up to 10MB
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="imagePreview" class="hidden space-y-4">
+                            <img id="previewImage" class="max-h-48 mx-auto rounded-lg shadow-md">
+                            <p id="fileName" class="text-sm text-gray-600 dark:text-gray-400"></p>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="analyzeBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <i id="analyzeIcon" class="fas fa-search"></i>
+                        <span id="analyzeText">Analyze Image</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Info/Results Section -->
+            <div>
+                <!-- Results Panel (Hidden by default) -->
+                <div id="resultsPanel" class="hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
+                        <i class="fas fa-file-medical mr-2"></i>
+                        <span>Analysis Results</span>
+                    </h2>
+
+                    <div id="resultContent" class="space-y-4">
+                        <!-- Results will be populated here -->
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                        <button id="downloadBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center space-x-2">
+                            <i class="fas fa-download"></i>
+                            <span>Download PDF Report</span>
+                        </button>
+
+                        <button id="audioBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-lg flex items-center justify-center space-x-2">
+                            <i id="audioIcon" class="fas fa-play"></i>
+                            <i class="fas fa-volume-up ml-1"></i>
+                            <span id="audioText">Play</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Supported Crops Panel -->
+                <div id="supportedCropsPanel" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-2xl font-bold text-yellow-800 dark:text-white mb-6">Supported Crops</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="crop-card-large">
+                            <i class="fas fa-wheat text-yellow-600 text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-800 dark:text-white">Wheat</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Brown rust, Yellow rust, Healthy</p>
+                        </div>
+                        <div class="crop-card-large">
+                            <i class="fas fa-corn text-yellow-500 text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-800 dark:text-white">Maize</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Blight, Common rust, Gray leaf spot</p>
+                        </div>
+                        <div class="crop-card-large">
+                            <i class="fas fa-seedling text-green-600 text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-800 dark:text-white">Cotton</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Bacterial blight, Curl virus, Fusarium wilt</p>
+                        </div>
+                        <div class="crop-card-large">
+                            <i class="fas fa-sugar-cane text-green-700 text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-800 dark:text-white">Sugarcane</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Mosaic, Red rot, Rust</p>
+                        </div>
+                        <div class="crop-card-large md:col-span-2">
+                            <i class="fas fa-rice text-green-500 text-3xl mb-3"></i>
+                            <h3 class="font-semibold text-gray-800 dark:text-white">Rice</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Bacterial blight, Blast, Brown spot, Tungro</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                        <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                            <strong>Note:</strong> This model specializes in detecting diseases in staple food crops. These crops are essential for global food security.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .crop-card-large {
+            @apply flex flex-col items-center p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-2 border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors text-center;
+        }
+        .crop-card-large h3 {
+            @apply text-yellow-800 dark:text-white;
+        }
+        .crop-card-large p {
+            @apply text-yellow-700 dark:text-gray-200;
+        }
+    </style>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000';
+        const MODEL_ENDPOINT = '/predict/staple';
+        
+        // Include the same JavaScript functionality as multicrop.html
+        let currentResults = null;
+        let currentAudio = null;
+        let isPlaying = false;
+
+        // Theme Management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.className = savedTheme;
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.className;
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.className = newTheme;
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // File handling
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                displayImagePreview(file);
+            }
+        }
+
+        function displayImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('uploadPrompt').classList.add('hidden');
+                document.getElementById('imagePreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Form submission
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const file = document.getElementById('imageInput').files[0];
+            
+            if (!file) {
+                alert('Please select an image');
+                return;
+            }
+            
+            setLoadingState(true);
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                const response = await fetch(`${BACKEND_URL}${MODEL_ENDPOINT}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    currentResults = result;
+                    displayResults(result);
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Prediction failed');
+                }
+            } catch (error) {
+                console.error('Prediction error:', error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        function setLoadingState(loading) {
+            const analyzeIcon = document.getElementById('analyzeIcon');
+            const analyzeText = document.getElementById('analyzeText');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            
+            if (loading) {
+                analyzeIcon.className = 'fas fa-spinner loading';
+                analyzeText.textContent = 'Analyzing...';
+                analyzeBtn.disabled = true;
+            } else {
+                analyzeIcon.className = 'fas fa-search';
+                analyzeText.textContent = 'Analyze Image';
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function displayResults(results) {
+            document.getElementById('supportedCropsPanel').classList.add('hidden');
+            document.getElementById('resultsPanel').classList.remove('hidden');
+            
+            const confidence = results.confidence;
+            let confidenceColor = 'text-red-600 dark:text-red-400';
+            let confidenceBg = 'bg-red-100 dark:bg-red-900/30';
+            
+            if (confidence >= 0.8) {
+                confidenceColor = 'text-green-600 dark:text-green-400';
+                confidenceBg = 'bg-green-100 dark:bg-green-900/30';
+            } else if (confidence >= 0.6) {
+                confidenceColor = 'text-yellow-600 dark:text-yellow-400';
+                confidenceBg = 'bg-yellow-100 dark:bg-yellow-900/30';
+            }
+            
+            document.getElementById('resultContent').innerHTML = `
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Crop Type:</span>
+                    <span class="text-gray-900 dark:text-white font-semibold">${results.crop_name}</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Prediction:</span>
+                    <span class="text-gray-900 dark:text-white font-semibold">${results.prediction}</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Confidence:</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="px-3 py-1 rounded-full ${confidenceBg}">
+                            <span class="font-bold ${confidenceColor}">${(confidence * 100).toFixed(1)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            document.getElementById('imageInput').addEventListener('change', handleFileSelect);
+            document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
+            
+            // Drag and drop
+            const dropZone = document.getElementById('dropZone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type.startsWith('image/')) {
+                        document.getElementById('imageInput').files = files;
+                        displayImagePreview(file);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
