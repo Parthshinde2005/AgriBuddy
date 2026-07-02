@@ -1,4 +1,4 @@
-# Smart Crop Diagnosis System.
+# Smart Crop Diagnosis System
 
 AI-powered crop disease detection system with automatic model selection, PDF reports, and audio features.
 
